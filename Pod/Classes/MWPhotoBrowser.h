@@ -35,6 +35,8 @@
 - (BOOL)photoBrowser:(MWPhotoBrowser *)photoBrowser isPhotoSelectedAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(MWPhotoBrowser *)photoBrowser photoAtIndex:(NSUInteger)index selectedChanged:(BOOL)selected;
 - (void)photoBrowserDidFinishModalPresentation:(MWPhotoBrowser *)photoBrowser;
+- (void)photoBrowserGetPreviousSet:(MWPhotoBrowser *)photoBrowser;
+- (void)photoBrowserGetNextSet:(MWPhotoBrowser *)photoBrowser;
 
 @end
 
@@ -71,5 +73,5 @@
 // Navigation
 - (void)showNextPhotoAnimated:(BOOL)animated;
 - (void)showPreviousPhotoAnimated:(BOOL)animated;
-
+- (void)showControls;
 @end
