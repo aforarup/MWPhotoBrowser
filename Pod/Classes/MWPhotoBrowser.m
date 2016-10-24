@@ -144,7 +144,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (!_enableGrid) _startOnGrid = NO;
 	
 	// View
-	self.view.backgroundColor = [UIColor blackColor];
+	self.view.backgroundColor = [UIColor colorWithWhite:237.0f/255.0f alpha:1.0f];
     self.view.clipsToBounds = YES;
 	
 	// Setup paging scrolling view
@@ -155,13 +155,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 	_pagingScrollView.delegate = self;
 	_pagingScrollView.showsHorizontalScrollIndicator = NO;
 	_pagingScrollView.showsVerticalScrollIndicator = NO;
-	_pagingScrollView.backgroundColor = [UIColor blackColor];
+	_pagingScrollView.backgroundColor = [UIColor whiteColor];
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
 	
     // Toolbar
     _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
-    _toolbar.tintColor = [UIColor whiteColor];
+    _toolbar.tintColor = _toolbar;
     _toolbar.barTintColor = nil;
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
@@ -345,7 +345,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Set style
     if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:animated];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
     }
     
     // Navigation bar appearance
@@ -442,8 +442,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
     UINavigationBar *navBar = self.navigationController.navigationBar;
-    navBar.tintColor = [UIColor whiteColor];
-    navBar.barTintColor = nil;
+    navBar.tintColor = [UIColor blackColor];
+    navBar.barTintColor = [UIColor colorWithWhite:1.0f alpha:0.01f];
     navBar.shadowImage = nil;
     navBar.translucent = YES;
     navBar.barStyle = UIBarStyleBlackTranslucent;
@@ -726,7 +726,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         // If page is current page then initiate loading of previous and next pages
         NSUInteger pageIndex = page.index;
         if (_currentPageIndex == pageIndex) {
-            if (pageIndex > 0) {
+            if (pageIndex > 1) {
                 // Preload index - 1
                 id <MWPhoto> photo = [self photoAtIndex:pageIndex-1];
                 if (![photo underlyingImage]) {
@@ -734,7 +734,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                     MWLog(@"Pre-loading image at index %lu", (unsigned long)pageIndex-1);
                 }
             }
-            if (pageIndex < [self numberOfPhotos] - 1) {
+            if (pageIndex + 2 < [self numberOfPhotos] - 1) {
                 // Preload index + 1
                 id <MWPhoto> photo = [self photoAtIndex:pageIndex+1];
                 if (![photo underlyingImage]) {
@@ -1504,7 +1504,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
-    return UIStatusBarStyleLightContent;
+    return UIStatusBarStyleDefault;
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
@@ -1539,15 +1539,18 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     NSUInteger photoCount = [self numberOfPhotos];
     if (photoCount == 0) {
         index = 0;
-    } else {
-        if (index >= photoCount)
-            index = [self numberOfPhotos]-1;
     }
+//    } else {
+//        if (index >= photoCount)
+//            index = [self numberOfPhotos]-1;
+//    }
     _currentPageIndex = index;
 	if ([self isViewLoaded]) {
-        [self jumpToPageAtIndex:index animated:NO];
-        if (!_viewIsActive)
-            [self tilePages]; // Force tiling if view is not visible
+        if (index < photoCount) {
+            [self jumpToPageAtIndex:index animated:NO];
+            if (!_viewIsActive)
+                [self tilePages]; // Force tiling if view is not visible
+        }
     }
 }
 

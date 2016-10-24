@@ -11,10 +11,12 @@
 #import "MWPhoto.h"
 
 static const CGFloat labelPadding = 10;
+static const CGFloat labelHeight = 21;
 
 // Private
 @interface MWCaptionView () {
     id <MWPhoto> _photo;
+    UILabel *_counter;
     UILabel *_label;    
 }
 @end
@@ -26,12 +28,12 @@ static const CGFloat labelPadding = 10;
     if (self) {
         self.userInteractionEnabled = NO;
         _photo = photo;
-        self.barStyle = UIBarStyleBlackTranslucent;
-        self.tintColor = nil;
-        self.barTintColor = nil;
-        self.barStyle = UIBarStyleBlackTranslucent;
+        self.barStyle = UIBarStyleBlackOpaque;
+        self.tintColor = [UIColor colorWithWhite:237.0f/255.0f alpha:1.0f];
+        self.barTintColor = [UIColor colorWithWhite:237.0f/255.0f alpha:1.0f];
+        self.barStyle = UIBarStyleBlackOpaque;
         [self setBackgroundImage:nil forToolbarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
-        self.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
+//        self.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
         [self setupCaption];
     }
     return self;
@@ -44,24 +46,60 @@ static const CGFloat labelPadding = 10;
                                                 options:NSStringDrawingUsesLineFragmentOrigin
                                              attributes:@{NSFontAttributeName:_label.font}
                                                 context:nil].size;
-    return CGSizeMake(size.width, textSize.height + labelPadding * 2);
+    return CGSizeMake(size.width, textSize.height + labelPadding * 3 + labelHeight);
+}
+
+- (void) setupCounter {
+    _counter = [[UILabel alloc] initWithFrame:CGRectIntegral(CGRectMake(labelPadding, labelPadding,
+                                                                        self.bounds.size.width-labelPadding*2,
+                                                                        labelHeight))];
+    _counter.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _counter.opaque = NO;
+    _counter.backgroundColor = [UIColor clearColor];
+    _counter.textAlignment = NSTextAlignmentLeft;
+    _counter.lineBreakMode = NSLineBreakByWordWrapping;
+    
+    _counter.numberOfLines = 0;
+    _counter.textColor = [UIColor blackColor];
+    _counter.font = [UIFont systemFontOfSize:17];
+    NSString *text = @" ";
+    if ([_photo respondsToSelector:@selector(indexString)]) {
+        text = [_photo indexString] ? [_photo indexString] : @" ";
+    }
+    _counter.text = text;
+    [_counter sizeToFit];
+    [self addSubview:_counter];
 }
 
 - (void)setupCaption {
-    _label = [[UILabel alloc] initWithFrame:CGRectIntegral(CGRectMake(labelPadding, 0,
-                                                       self.bounds.size.width-labelPadding*2,
-                                                       self.bounds.size.height))];
-    _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [self setupCounter];
+    
+    
+    _label = [[UILabel alloc] initWithFrame:CGRectZero];
+    
     _label.opaque = NO;
     _label.backgroundColor = [UIColor clearColor];
-    _label.textAlignment = NSTextAlignmentCenter;
+    _label.textAlignment = NSTextAlignmentLeft;
     _label.lineBreakMode = NSLineBreakByWordWrapping;
+    _label.font = [UIFont systemFontOfSize:17];
+    
+    NSString *text = @" ";
+    if ([_photo respondsToSelector:@selector(caption)]) {
+        text = [_photo caption] ? [_photo caption] : @" ";
+    }
+    CGSize textSize = [text boundingRectWithSize:CGSizeMake([UIScreen mainScreen].bounds.size.width-labelPadding*2, 300)
+                                                options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:@{NSFontAttributeName:_label.font}
+                                                context:nil].size;
 
     _label.numberOfLines = 0;
-    _label.textColor = [UIColor whiteColor];
-    _label.font = [UIFont systemFontOfSize:17];
+    _label.textColor = [UIColor colorWithWhite:106.0/255.0f alpha:1.0f];
+    
+    
+    [_label setFrame: CGRectIntegral(CGRectMake(labelPadding, (2 * labelPadding) + _counter.frame.size.height,textSize.width,textSize.height))];
+    [_label setText:text];
     if ([_photo respondsToSelector:@selector(caption)]) {
-        _label.text = [_photo caption] ? [_photo caption] : @" ";
+        
     }
     [self addSubview:_label];
 }
