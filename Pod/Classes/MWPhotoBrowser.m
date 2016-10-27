@@ -221,7 +221,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         // We're not first so show back button
         UIViewController *previousViewController = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
         NSString *backButtonTitle = previousViewController.navigationItem.backBarButtonItem ? previousViewController.navigationItem.backBarButtonItem.title : previousViewController.title;
-        UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithTitle:backButtonTitle style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(handleBack)];
+        
+        
+        
+        
+        //[[UIBarButtonItem alloc] initWithTitle:@"Dhckk" style:UIBarButtonItemStylePlain target:self action:@selector(handleBack)];
         // Appearance
         [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
         [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
@@ -230,7 +235,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [newBackButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
         [newBackButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
         _previousViewControllerBackButton = previousViewController.navigationItem.backBarButtonItem; // remember previous
-        previousViewController.navigationItem.backBarButtonItem = newBackButton;
+//        previousViewController.navigationItem.backBarButtonItem = newBackButton;
+        self.navigationItem.leftBarButtonItems = @[newBackButton];
     }
 
     // Toolbar items
@@ -391,6 +397,36 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     _viewHasAppearedInitially = YES;
         
+}
+
+- (void) handleBack {
+    _pageIndexBeforeRotation = _currentPageIndex;
+    
+    // Check that we're disappearing for good
+    // self.isMovingFromParentViewController just doesn't work, ever. Or self.isBeingDismissed
+//    if ((_doneButton && self.navigationController.isBeingDismissed) ||
+//        ([self.navigationController.viewControllers objectAtIndex:0] != self && ![self.navigationController.viewControllers containsObject:self])) {
+//        
+        // State
+        _viewIsActive = NO;
+        [self clearCurrentVideo]; // Clear current playing video
+        
+        // Bar state / appearance
+        [self restorePreviousNavBarAppearance:YES];
+        
+//    }
+    
+    // Controls
+    [self.navigationController.navigationBar.layer removeAllAnimations]; // Stop all animations on nav bar
+    [NSObject cancelPreviousPerformRequestsWithTarget:self]; // Cancel any pending toggles from taps
+    [self setControlsHidden:NO animated:NO permanent:YES];
+    
+    // Status bar
+    if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:YES];
+    }
+
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
